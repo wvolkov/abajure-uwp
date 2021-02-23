@@ -20,6 +20,7 @@ namespace Abajure.Controllers
         public SongProvider SongProvider { get; private set; }
         public AbajureSettings Settings { get; private set; }
         public MediaSource MediaSource { get; private set; }
+        public Song CurrentSong { get; private set; }
         public ABEnum ABCurrentStatus { get; private set; } = ABEnum.Released;
         public TimeSpan CurrentDuration { get; private set; }
         public TimeSpan ABMarkA { get; private set; } = TimeSpan.Zero;
@@ -75,7 +76,7 @@ namespace Abajure.Controllers
 
         public async void SetMediaSourceAsync(Song s)
         {
-
+            CurrentSong = s;
             StorageFile sf = await StorageFile.GetFileFromPathAsync(s.SongPath);
             if (MediaSource != null)
             {

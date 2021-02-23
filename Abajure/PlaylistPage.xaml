@@ -44,6 +44,7 @@
                     <FontIcon x:Name="_abFontIconTwo" FontFamily="Segoe MDL2 Assets" Margin="34,0,0,0"/>
                 </Grid>
             </AppBarButton>
+            <AppBarButton x:Name="abBtnLyrics" Icon="Page" Click="AbBtnLyrics_Click"/>
             <AppBarButton x:Name="abBtnSettings" Label="Settings" Click="AbBtnSettings_Click">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE713;" FontFamily="Segoe MDL2 Assets"/>

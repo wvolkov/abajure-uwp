@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Abajure.Entities;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace Abajure.Controllers
             }
         }
 
-        public static async Task<object> GetLyricsAsync(string track, string artist, string album)
+        public static async Task<LyricLineSet> GetLyricsAsync(string track, string artist, string album)
         {
             HttpClient client = new HttpClient();
             var headers = client.DefaultRequestHeaders;
@@ -36,7 +37,29 @@ namespace Abajure.Controllers
                 {
                     string resp_content = await resp.Content.ReadAsStringAsync();
                     JObject jsLyricsResult = JObject.Parse(resp_content);
-                    return jsLyricsResult;
+                    JToken lyrics = null;
+                    try
+                    {
+                        lyrics = jsLyricsResult["message"]["body"]["macro_calls"]["track.subtitles.get"]["message"]["body"]["subtitle_list"][0]["subtitle"]["subtitle_body"];
+                        string lyrics_json = lyrics.Value<String>();
+                        if(lyrics_json != null)
+                        {
+                            JArray parsed_lyrics = JArray.Parse(lyrics_json);
+                            return new LyricLineSet(parsed_lyrics, true);
+                        }
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            lyrics = jsLyricsResult["message"]["body"]["macro_calls"]["track.lyrics.get"]["message"]["body"]["lyrics"]["lyrics_body"];
+                        }
+                        catch
+                        {
+                            lyrics = null;
+                        }
+                    }
+                    return null; //TODO proper value
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 ﻿using Abajure.Controllers;
 using Abajure.Entities;
 using Abajure.Entities.UI;
+using Abajure.Pages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -265,5 +266,10 @@ namespace Abajure
             _provider.SongProvider.SongSet.CollectionChanged -= SongSet_CollectionChanged;
         }
 
+        private void AbBtnLyrics_Click(object sender, RoutedEventArgs e)
+        {
+            if (_provider.CurrentSong != null)
+                Frame.Navigate(typeof(AbajureLyrics), _provider.CurrentSong, new DrillInNavigationTransitionInfo());
+        }
     }
 }

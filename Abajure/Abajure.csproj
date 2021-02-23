@@ -105,6 +105,9 @@
     <Compile Include="Controllers\LyricsProvider.cs" />
     <Compile Include="Controllers\PlayerProvider.cs" />
     <Compile Include="Entities\LyricLine.cs" />
+    <Compile Include="Pages\AbajureLyrics.xaml.cs">
+      <DependentUpon>AbajureLyrics.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\AbajureSettings.xaml.cs">
       <DependentUpon>AbajureSettings.xaml</DependentUpon>
     </Compile>
@@ -186,6 +189,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Pages\AbajureLyrics.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AbajureSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
