@@ -72,7 +72,7 @@ namespace Abajure.Pages
                     {
                         try
                         {
-                            lvLyrics.ScrollIntoView(lvLyrics.Items[inx], ScrollIntoViewAlignment.Default);
+                            lvLyrics.ScrollIntoView(lvLyrics.Items[inx], ScrollIntoViewAlignment.Leading);
                             lvLyrics.SelectedIndex = inx;
                         }
                         catch (Exception ex)

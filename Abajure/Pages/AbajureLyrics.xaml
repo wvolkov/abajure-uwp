@@ -24,7 +24,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="Auto">
-                        <TextBlock TextAlignment="Center" Text="{Binding Line}" FontSize="24"/>
+                        <TextBlock TextAlignment="Center" Text="{Binding Line}" FontSize="24" TextWrapping="Wrap"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
