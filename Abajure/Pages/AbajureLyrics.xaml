@@ -11,11 +11,11 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock Text="Lyrics" HorizontalAlignment="Center" FontSize="36"/>
-        <ListView x:Name="lvLyrics" ItemsSource="{x:Bind _lyrics}" Margin="0,5,0,0">
+        <ListView x:Name="lvLyrics" ItemsSource="{x:Bind _lyrics}" Margin="0,5,0,0" Grid.Row="1">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -23,7 +23,9 @@
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock TextAlignment="Center" Text="{Binding Line}" FontSize="24"/>
+                    <Grid Height="Auto">
+                        <TextBlock TextAlignment="Center" Text="{Binding Line}" FontSize="24"/>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

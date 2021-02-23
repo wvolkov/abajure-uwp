@@ -34,21 +34,29 @@ namespace Abajure.Entities
                 TimeSpan
                     start = TimeSpan.Zero,
                     end = TimeSpan.Zero;
+                string
+                    prevLine = "",
+                    newLine = "";
 
                 foreach(var lyric in jsLyrics)
                 {
-                    string line = lyric["text"].Value<string>();
+                    newLine = lyric["text"].Value<string>();
                     var time = lyric["time"];
                     if(time!=null)
                     {
                         int min = time["minutes"].Value<int>(),
                             sec = time["seconds"].Value<int>(),
                             ms = time["hundredths"].Value<int>();
-                        end = start + new TimeSpan(0, 0, min, sec, ms*10);
-                        this.Add(new LyricLine(line, start, end));
+                        end = new TimeSpan(0, 0, min, sec, ms * 10);
+                        if (prevLine != "")
+                        {
+                            this.Add(new LyricLine(prevLine, start, end));
+                        }
                         start = end;
+                        prevLine = newLine;
                     }
                 }
+                this.Add(new LyricLine(newLine, start, end));
             }
         }
 

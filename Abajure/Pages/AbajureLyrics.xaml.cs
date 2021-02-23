@@ -2,6 +2,7 @@
 using Abajure.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -41,6 +42,7 @@ namespace Abajure.Pages
             base.OnNavigatedTo(e);
             var song = e.Parameter as Song;
             _provider = await PlayerProvider.GetPlayerProvider();
+            _provider.MediaTimeChanged += _provider_MediaTimeChanged;
             if (song != null)
             {
                 _song = song;
@@ -55,18 +57,46 @@ namespace Abajure.Pages
             systemNavigationManager.AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
         }
 
-        private void OnBackRequested(object sender, BackRequestedEventArgs e)
+        private async void _provider_MediaTimeChanged(PlayerProvider sender, MediaTimeChangedEventArgs e)
         {
-            // Mark event as handled so we don't get bounced out of the app.
-            e.Handled = true;
-            // Page above us will be our master view.
-            // Make sure we are using the "drill out" animation in this transition.
-            Frame.Navigate(typeof(PlaylistPage), "Back", new EntranceNavigationTransitionInfo());
-        }
+            if (_lyrics != null)
+            {
+                var lyricLine = _lyrics[e.ElapsedTime];
+                int inx;
+                if (lyricLine != null)
+                {
+                    inx = _lyrics.IndexOf(lyricLine);
+                    var item = lvLyrics.Items[inx];
 
-        private async Task<LyricLineSet> TryGetLyrics()
-        {
-           return await LyricsProvider.GetLyricsAsync(_song.Title, _song.Artist, _song.Album);
-        }
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        try
+                        {
+                            lvLyrics.ScrollIntoView(lvLyrics.Items[inx], ScrollIntoViewAlignment.Default);
+                            lvLyrics.SelectedIndex = inx;
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                    });
+                }
+            }
+        }    
+
+    private void OnBackRequested(object sender, BackRequestedEventArgs e)
+    {
+        // Mark event as handled so we don't get bounced out of the app.
+        e.Handled = true;
+        // Page above us will be our master view.
+        // Make sure we are using the "drill out" animation in this transition.
+        _provider.MediaTimeChanged -= _provider_MediaTimeChanged;
+        Frame.Navigate(typeof(PlaylistPage), "Back", new EntranceNavigationTransitionInfo());
     }
+
+    private async Task<LyricLineSet> TryGetLyrics()
+    {
+        return await LyricsProvider.GetLyricsAsync(_song.Title, _song.Artist, _song.Album);
+    }
+}
 }
