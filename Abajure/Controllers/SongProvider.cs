@@ -38,7 +38,9 @@ namespace Abajure.Entities
         public void Search(string strPat)
         {
             if (strPat != "")
-                SongSet = new SongSet(_orig.Where(i => i.Title.Contains(strPat)));
+                SongSet = new SongSet(_orig.Where(i => i.Title.ToLower().Contains(strPat.ToLower()) 
+                                                        || i.Artist.ToLower().Contains(strPat.ToLower())
+                                                        || i.Album.ToLower().Contains(strPat.ToLower())));
             else
                 SongSet = _orig;
         }

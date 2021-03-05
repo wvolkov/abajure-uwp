@@ -10,6 +10,7 @@ using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 
 namespace Abajure.Controllers
@@ -70,7 +71,7 @@ namespace Abajure.Controllers
             Settings = await AbajureSettings.GetSettingsAsync();
 
             MediaPlayer = new MediaPlayer();
-            if (Settings.AudioDeviceId != "")
+            if (Settings.AudioDeviceId != null)
             {
                 var audioDevice = await DeviceInformation.CreateFromIdAsync(Settings.AudioDeviceId);
                 MediaPlayer.AudioDevice = audioDevice;
@@ -148,6 +149,15 @@ namespace Abajure.Controllers
             props.MusicProperties.Title = song.Title;
             props.MusicProperties.AlbumTitle = song.Album;
             MediaPlaybackItem.ApplyDisplayProperties(props);
+
+            var _systemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
+            SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
+            updater.Type = MediaPlaybackType.Music;
+            updater.MusicProperties.Artist = song.Artist;
+            updater.MusicProperties.AlbumArtist = song.AlbumArtist;
+            updater.MusicProperties.Title = song.Title;
+            updater.Update();
+            //await updater.CopyFromFileAsync(MediaPlaybackType.Music, await song.AsStorageFileAsync());
         }
 
         public void ABRefresh()

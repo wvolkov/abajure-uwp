@@ -33,7 +33,15 @@ namespace Abajure
         public App()
         {
             this.InitializeComponent();
+            this.InitializeFolders();
             this.Suspending += OnSuspending;
+        }
+
+        private async void InitializeFolders()
+        {
+            var lyricsFolder = await ApplicationData.Current.LocalFolder.TryGetItemAsync("lyrics");
+            if (lyricsFolder == null)
+                await ApplicationData.Current.LocalFolder.CreateFolderAsync("lyrics");
         }
 
 

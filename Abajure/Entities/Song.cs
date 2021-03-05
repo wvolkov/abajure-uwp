@@ -25,6 +25,8 @@ namespace Abajure.Entities
         public uint TrackNumber { get; private set; }
         public uint Year { get; private set; }
 
+        private byte[] _albumCover;
+
         public string DurationString
         {
             get

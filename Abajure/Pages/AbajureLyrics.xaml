@@ -8,6 +8,31 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.BottomAppBar>
+        <CommandBar Background="{x:Null}">
+            <AppBarToggleButton x:Name="cmdAutoScroll" Label="Auto Scroll" IsEnabled="False" Click="CmdAutoScroll_Click">
+                <AppBarToggleButton.Icon>
+                    <FontIcon Glyph="&#xECE7;" FontFamily="Segoe MDL2 Assets"/>
+                </AppBarToggleButton.Icon>
+            </AppBarToggleButton>
+            <CommandBar.Content>
+                <Grid Margin="10,0,10,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Image  x:Name="AlbumPlaceHolder" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,5,0" Width="45"/>
+                    <TextBlock Text="{x:Bind _song.Artist}" FontSize="15" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Bind _song.Title}" FontSize="12" Foreground="DarkGray" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"/>
+                </Grid>
+            </CommandBar.Content>
+        </CommandBar>
+    </Page.BottomAppBar>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -29,6 +54,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <TextBlock x:Name="tbNotFound" Grid.Row="1" Visibility="Collapsed" HorizontalAlignment="Center" FontSize="26" Text="Not Found :(" VerticalAlignment="Center"/>
 
     </Grid>
 </Page>

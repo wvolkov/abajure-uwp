@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+using Windows.Storage.Streams;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
 
@@ -23,6 +26,21 @@ namespace Abajure.Controllers
         }
 
         public static async Task<LyricLineSet> GetLyricsAsync(string track, string artist, string album)
+        {
+            string lyricFileName = GenerateHash(track, artist, album);
+            var lyrics = await LyricLineSet.Load(lyricFileName);
+            if (lyrics != null)
+                return lyrics;
+            else
+            {
+                lyrics = await RequestLyricsAsync(track, artist, album);
+                if (lyrics != null)
+                    lyrics.Save(lyricFileName);
+                return lyrics;
+            }
+        }
+
+        public static async Task<LyricLineSet> RequestLyricsAsync(string track, string artist, string album)
         {
             HttpClient client = new HttpClient();
             var headers = client.DefaultRequestHeaders;
@@ -45,7 +63,7 @@ namespace Abajure.Controllers
                         if(lyrics_json != null)
                         {
                             JArray parsed_lyrics = JArray.Parse(lyrics_json);
-                            return new LyricLineSet(parsed_lyrics, true);
+                            return new LyricLineSet(parsed_lyrics);
                         }
                     }
                     catch
@@ -53,6 +71,8 @@ namespace Abajure.Controllers
                         try
                         {
                             lyrics = jsLyricsResult["message"]["body"]["macro_calls"]["track.lyrics.get"]["message"]["body"]["lyrics"]["lyrics_body"];
+                            if (lyrics != null)
+                                return new LyricLineSet(lyrics.Value<string>());
                         }
                         catch
                         {
@@ -111,6 +131,16 @@ namespace Abajure.Controllers
 
             return new Uri(url + "?" + query);
 
+        }
+
+        private static string GenerateHash(params string[] args)
+        {
+            string str = String.Join("", args);
+            IBuffer buffer = CryptographicBuffer.ConvertStringToBinary(str, BinaryStringEncoding.Utf8);
+            HashAlgorithmProvider hashAlgorithm = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+            IBuffer hashBuffer = hashAlgorithm.HashData(buffer);
+
+            return CryptographicBuffer.EncodeToHexString(hashBuffer);
         }
     }
 }
