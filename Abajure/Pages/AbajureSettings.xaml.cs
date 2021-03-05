@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Abajure.Controllers;
 using Abajure.Entities;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
@@ -28,7 +29,7 @@ namespace Abajure
     /// </summary>
     public sealed partial class AbajureSettingsPage : Page
     {
-        private AbajureSettings _settings;
+        private PlayerProvider _playerProvider;
         public AbajureSettingsPage()
         {
             this.InitializeComponent();
@@ -36,7 +37,7 @@ namespace Abajure
 
         private async void InitializeUI()
         {
-            _settings = await AbajureSettings.GetSettingsAsync();
+            _playerProvider = await PlayerProvider.GetPlayerProvider();
             FillAudioDeviceComboBox();
         }
 
@@ -58,21 +59,22 @@ namespace Abajure
             prAudioDevices.Visibility = Visibility.Collapsed;
             cbAudioDevices.IsEnabled = true;
 
-            if (_settings.AudioDeviceId != null)
+            if (_playerProvider.Settings.AudioDeviceId != null)
             {
-                int inx = cbAudioDevices.Items.Cast<ComboBoxItem>().ToList().FindIndex(i => ((DeviceInformation)i.Tag).Id == _settings.AudioDeviceId);
+                int inx = cbAudioDevices.Items.Cast<ComboBoxItem>().ToList().FindIndex(i => ((DeviceInformation)i.Tag).Id == _playerProvider.Settings.AudioDeviceId);
                 cbAudioDevices.SelectedIndex = inx;
             }
         }
 
-        private async void ApBtnSave_Click(object sender, RoutedEventArgs e)
+        private void ApBtnSave_Click(object sender, RoutedEventArgs e)
         {
             if (cbAudioDevices.SelectedIndex != -1)
             {
                 DeviceInformation selectedAudioDevice = (DeviceInformation)((ComboBoxItem)cbAudioDevices.SelectedItem).Tag;
-                AbajureSettings settings = await AbajureSettings.GetSettingsAsync();
+                var settings = _playerProvider.Settings;
                 settings.AudioDeviceId = selectedAudioDevice.Id;
                 settings.Save();
+                _playerProvider.SetMediaDevice(selectedAudioDevice);
                 Frame.Navigate(typeof(PlaylistPage), "Back", new EntranceNavigationTransitionInfo());
             }
         }

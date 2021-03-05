@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -69,6 +70,11 @@ namespace Abajure.Controllers
             Settings = await AbajureSettings.GetSettingsAsync();
 
             MediaPlayer = new MediaPlayer();
+            if (Settings.AudioDeviceId != "")
+            {
+                var audioDevice = await DeviceInformation.CreateFromIdAsync(Settings.AudioDeviceId);
+                MediaPlayer.AudioDevice = audioDevice;
+            }
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
 
             return true;
@@ -97,6 +103,13 @@ namespace Abajure.Controllers
             MediaPlayer.Source = MediaPlaybackItem;
 
             UpdateDisplayMeta(s);
+        }
+
+        public void SetMediaDevice(DeviceInformation audioDevice)
+        {
+            MediaPlayer.Pause();
+            MediaPlayer.AudioDevice = audioDevice;
+            MediaPlayer.Play();
         }
 
         private void _currentMedia_OpenOperationCompleted(MediaSource sender, MediaSourceOpenOperationCompletedEventArgs args)

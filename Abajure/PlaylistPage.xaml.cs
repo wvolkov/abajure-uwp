@@ -99,6 +99,7 @@ namespace Abajure
                 SetABButtonGlyph(_provider.ABCurrentStatus);
                 _provider.SetMediaSourceAsync(selItem);
                 abBtnPlayPause.Icon = new SymbolIcon(Symbol.Pause);
+
             }
         }
 

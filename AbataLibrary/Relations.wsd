@@ -1,0 +1,50 @@
+﻿@startuml Abata Relations
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) <i>x</i>
+hide methods
+hide stereotypes
+
+table(songs) {
+  primary_key(id): int4
+  song_path: varchar
+  song_hash: ???
+  title: varchar
+  artist: varchar
+  album: varchar
+  album_artist: varchar
+  subtitle: varchar
+  bitrate: int8
+  year: int
+  date_modified: timestamp
+  duration: time
+}
+
+table(playlists) {
+    primary_key(id): int4
+    name: varchar
+    image: blob
+    created_at: timestamp
+    deleted_at: timestamp
+}
+
+table(playlist_songs) {
+    primary_key(id): int4
+    foreign_key(playlist_id): int4
+    foreign_key(song_id): int4
+}
+
+table(song_stats) {
+    primary_key(id): int4
+    foreign_key(song_id): int4
+    start_listen_at: timestamp
+    listen_duration: time
+    listen_speed: float
+}
+
+songs "1"--* playlist_songs: id = song_id
+songs "1"--* song_stats: id = song_id
+playlists "1"--* playlist_songs: id = playlist_id
+
+
+@enduml
