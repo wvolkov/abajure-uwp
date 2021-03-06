@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 
@@ -82,6 +85,26 @@ namespace Abajure.Entities
         {
             foreach (StorageFile file in files)
                 this.Add(await Song.CreateSongAsync(file));
+        }
+
+        public async Task<MediaPlaybackList> AsMediaPlayBackListAsync()
+        {
+            MediaPlaybackList res = new MediaPlaybackList();
+            foreach(var song in this)
+            {
+                var songFile = await song.AsStorageFileAsync();
+                res.Items.Add(new MediaPlaybackItem(MediaSource.CreateFromStorageFile(songFile)));
+            }
+            return res;
+        }
+
+        public SongSet GetSongsAfter(Song s)
+        {
+            int inx = this.IndexOf(s);
+            if (inx >= 0)
+                return new SongSet(this.Skip(inx + 1).Take(10));
+            else
+                return null;
         }
     }
 }

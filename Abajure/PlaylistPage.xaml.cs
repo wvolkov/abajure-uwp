@@ -49,12 +49,20 @@ namespace Abajure
             _provider = await PlayerProvider.GetPlayerProvider();
             UpdateUIcmdXspeed(String.Format("x{0:0.0}", _provider.Settings.PlayBackRate));
             UpdateUIslider();
-            _provider.MediaOpenOperationCompleted += _provider_MediaOpenOperationCompleted;
+            _provider.MediaPlaybackList.CurrentItemChanged += MediaPlaybackList_CurrentItemChanged;
             _provider.MediaTimeChanged += _provider_MediaTimeChanged;
             _provider.SongProvider.SongSet.CollectionChanged += SongSet_CollectionChanged;
 
             return true;
 
+        }
+
+        private void MediaPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
+            lvMusicFiles.SelectionChanged -= lvMusicFiles_SelectionChanged;
+            var inx = sender.CurrentItemIndex;
+            lvMusicFiles.SelectedItem = _provider.SongSet[(int)inx];
+            lvMusicFiles.SelectionChanged += lvMusicFiles_SelectionChanged;
         }
 
         private void UpdateUIslider()
@@ -97,7 +105,7 @@ namespace Abajure
             {
                 _provider.ABRefresh();
                 SetABButtonGlyph(_provider.ABCurrentStatus);
-                _provider.SetMediaSourceAsync(selItem);
+                _provider.SetMediaSourceAsync(selItem, _provider.SongProvider.SongSet);
                 abBtnPlayPause.Icon = new SymbolIcon(Symbol.Pause);
 
             }

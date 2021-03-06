@@ -28,6 +28,7 @@
                     <Image  x:Name="AlbumPlaceHolder" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,5,0" Width="45"/>
                     <TextBlock Text="{x:Bind _song.Artist}" FontSize="15" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center"/>
                     <TextBlock Text="{x:Bind _song.Title}" FontSize="12" Foreground="DarkGray" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top"/>
+                    <TextBlock Text="{x:Bind Path=_song.Title}" FontSize="12" Foreground="DarkGray" VerticalAlignment="Top"/>
                 </Grid>
             </CommandBar.Content>
         </CommandBar>
