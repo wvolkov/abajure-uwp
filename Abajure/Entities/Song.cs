@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -24,8 +20,6 @@ namespace Abajure.Entities
         public string Subtitle { get; private set; }
         public uint TrackNumber { get; private set; }
         public uint Year { get; private set; }
-
-        private byte[] _albumCover;
 
         public string DurationString
         {
@@ -62,6 +56,13 @@ namespace Abajure.Entities
         public async Task<StorageFile> AsStorageFileAsync()
         {
             return await StorageFile.GetFileFromPathAsync(SongPath);
+        }
+
+        public async Task<StorageItemThumbnail> GetThumbNail()
+        {
+            StorageFile file = await this.AsStorageFileAsync();
+            StorageItemThumbnail thumb = await file.GetThumbnailAsync(ThumbnailMode.MusicView, 500);
+            return thumb;
         }
     }
 

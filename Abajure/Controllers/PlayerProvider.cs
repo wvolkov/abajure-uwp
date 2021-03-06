@@ -1,17 +1,14 @@
 ﻿using Abajure.Entities;
 using Abajure.Entities.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
-using Windows.UI.Core;
 
 namespace Abajure.Controllers
 {
@@ -141,23 +138,34 @@ namespace Abajure.Controllers
             }
         }
 
-        private void UpdateDisplayMeta(Song song)
+        private async void UpdateDisplayMeta(Song song)
         {
-            MediaItemDisplayProperties props = MediaPlaybackItem.GetDisplayProperties();
-            props.Type = MediaPlaybackType.Music;
-            props.MusicProperties.Artist = song.Artist;
-            props.MusicProperties.Title = song.Title;
-            props.MusicProperties.AlbumTitle = song.Album;
-            MediaPlaybackItem.ApplyDisplayProperties(props);
+            var thumb = await song.GetThumbNail();
+            {
 
-            var _systemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
-            SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
-            updater.Type = MediaPlaybackType.Music;
-            updater.MusicProperties.Artist = song.Artist;
-            updater.MusicProperties.AlbumArtist = song.AlbumArtist;
-            updater.MusicProperties.Title = song.Title;
-            updater.Update();
-            //await updater.CopyFromFileAsync(MediaPlaybackType.Music, await song.AsStorageFileAsync());
+                MediaItemDisplayProperties props = MediaPlaybackItem.GetDisplayProperties();
+                props.Type = MediaPlaybackType.Music;
+                props.MusicProperties.Artist = song.Artist;
+                props.MusicProperties.Title = song.Title;
+                props.MusicProperties.AlbumTitle = song.Album;
+
+
+                var _systemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
+                SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
+                updater.Type = MediaPlaybackType.Music;
+                updater.MusicProperties.Artist = song.Artist;
+                updater.MusicProperties.AlbumArtist = song.AlbumArtist;
+                updater.MusicProperties.Title = song.Title;
+
+                if (thumb != null && thumb.Type == ThumbnailType.Image)
+                {
+                    var thumbStream = RandomAccessStreamReference.CreateFromStream(thumb);
+                    props.Thumbnail = thumbStream;
+                    updater.Thumbnail = thumbStream;
+                }
+                MediaPlaybackItem.ApplyDisplayProperties(props);
+                updater.Update();
+            }
         }
 
         public void ABRefresh()

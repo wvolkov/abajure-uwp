@@ -37,6 +37,7 @@
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9D;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
+            <AppBarSeparator/>
             <AppBarButton x:Name="abBtnAB" HorizontalAlignment="Left" VerticalContentAlignment="Center" Label="AB" VerticalAlignment="Top" Click="AbBtnAB_Click">
                 <Grid>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE78A;"/>
@@ -49,11 +50,13 @@
                     <FontIcon Glyph="&#xE90B;" FontFamily="Segoe MDL2 Assets"/>
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Name="abBtnSettings" Label="Settings" Click="AbBtnSettings_Click">
-                <AppBarButton.Icon>
-                    <FontIcon Glyph="&#xE713;" FontFamily="Segoe MDL2 Assets"/>
-                </AppBarButton.Icon>
-            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="abBtnSettings" Label="Settings" Click="AbBtnSettings_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE713;" FontFamily="Segoe MDL2 Assets"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
