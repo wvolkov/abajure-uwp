@@ -37,6 +37,7 @@
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9D;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
+            <AppBarSeparator/>
             <AppBarButton x:Name="abBtnAB" HorizontalAlignment="Left" VerticalContentAlignment="Center" Label="AB" VerticalAlignment="Top" Click="AbBtnAB_Click">
                 <Grid>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE78A;"/>
@@ -44,7 +45,6 @@
                     <FontIcon x:Name="_abFontIconTwo" FontFamily="Segoe MDL2 Assets" Margin="34,0,0,0"/>
                 </Grid>
             </AppBarButton>
-            <AppBarSeparator/>
             <AppBarButton x:Name="abBtnLyrics" Click="AbBtnLyrics_Click" Label="Lyrics">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE90B;" FontFamily="Segoe MDL2 Assets"/>

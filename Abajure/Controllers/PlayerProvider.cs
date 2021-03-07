@@ -15,7 +15,7 @@ namespace Abajure.Controllers
     class PlayerProvider
     {
         public MediaPlayer MediaPlayer { get; private set; }
-        public MediaPlaybackList MediaPlaybackList { get; private set; }
+        public MediaPlaybackItem MediaPlaybackItem { get; private set; }
         public SongProvider SongProvider { get; private set; }
         public AbajureSettings Settings { get; private set; }
         public MediaSource MediaSource { get; private set; }
@@ -75,74 +75,32 @@ namespace Abajure.Controllers
             }
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
 
-            MediaPlaybackList = new MediaPlaybackList();
-            MediaPlaybackList.CurrentItemChanged += MediaPlaybackList_CurrentItemChanged;
-            MediaPlaybackList.ItemOpened += MediaPlaybackList_ItemOpened;
-            MediaPlaybackList.ItemFailed += MediaPlaybackList_ItemFailed;
-
             return true;
         }
 
-        private void MediaPlaybackList_ItemFailed(MediaPlaybackList sender, MediaPlaybackItemFailedEventArgs args)
-        {
-            
-        }
-
-        private void MediaPlaybackList_ItemOpened(MediaPlaybackList sender, MediaPlaybackItemOpenedEventArgs args)
-        {
-            CurrentDuration = sender.CurrentItem.Source.Duration.GetValueOrDefault();
-            OnMediaOpenOperationCompleted(EventArgs.Empty);
-            MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-            MediaPlayer.PlaybackSession.PlaybackRate = Settings.PlayBackRate;
-            var inx = sender.CurrentItemIndex;
-            if (inx >= 0)
-                UpdateDisplayMeta(_provider.SongSet[(int)inx]);
-        }
-
-        private void MediaPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
-        {
-            var inx = sender.CurrentItemIndex;
-            if (inx >= 0)
-            {
-                CurrentSong = _provider.SongSet[(int)inx];
-                UpdateDisplayMeta(CurrentSong);
-            }
-        }
-
-        public async void SetMediaSourceAsync(Song s, SongSet currentList)
+        public async void SetMediaSourceAsync(Song s)
         {
             CurrentSong = s;
             StorageFile sf = await StorageFile.GetFileFromPathAsync(s.SongPath);
             if (MediaSource != null)
             {
                 MediaPlayer.Pause();
-                MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
                 MediaPlayer.Dispose();
                 MediaPlayer = new MediaPlayer();
                 MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
                 MediaSource.OpenOperationCompleted -= _currentMedia_OpenOperationCompleted;
+                MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
                 MediaPlayer.Source = null;
             }
 
             MediaSource = MediaSource.CreateFromStorageFile(sf);
             MediaSource.OpenOperationCompleted += _currentMedia_OpenOperationCompleted;
 
-            var songFile = await s.AsStorageFileAsync();
-            if (MediaPlaybackList != null)
-                MediaPlaybackList.Items.Clear();
+            MediaPlaybackItem = new MediaPlaybackItem(MediaSource);
 
-            if (currentList != null)
-            {
-                var playBackList = await currentList.AsMediaPlayBackListAsync();
-                foreach (var playBackItem in playBackList.Items)
-                    MediaPlaybackList.Items.Add(playBackItem);
-            }
-            MediaPlaybackList.MoveTo((uint)currentList.IndexOf(s));
-            MediaPlayer.Source = MediaPlaybackList;
-            MediaPlayer.Play();
-            
+            MediaPlayer.Source = MediaPlaybackItem;
 
-            //UpdateDisplayMeta(s);
+            UpdateDisplayMeta(s);
         }
 
         public void SetMediaDevice(DeviceInformation audioDevice)
@@ -185,14 +143,14 @@ namespace Abajure.Controllers
             var thumb = await song.GetThumbNail();
             {
 
-                MediaItemDisplayProperties props = MediaPlaybackList.CurrentItem.GetDisplayProperties();
+                MediaItemDisplayProperties props = MediaPlaybackItem.GetDisplayProperties();
                 props.Type = MediaPlaybackType.Music;
                 props.MusicProperties.Artist = song.Artist;
                 props.MusicProperties.Title = song.Title;
                 props.MusicProperties.AlbumTitle = song.Album;
 
 
-                var _systemMediaTransportControls = MediaPlayer.SystemMediaTransportControls;
+                var _systemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
                 SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
                 updater.Type = MediaPlaybackType.Music;
                 updater.MusicProperties.Artist = song.Artist;
@@ -205,7 +163,7 @@ namespace Abajure.Controllers
                     props.Thumbnail = thumbStream;
                     updater.Thumbnail = thumbStream;
                 }
-                MediaPlaybackList.CurrentItem.ApplyDisplayProperties(props);
+                MediaPlaybackItem.ApplyDisplayProperties(props);
                 updater.Update();
             }
         }
