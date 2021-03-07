@@ -1,6 +1,7 @@
 ﻿using Abajure.Entities;
 using Abajure.Entities.UI;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Media;
@@ -16,15 +17,14 @@ namespace Abajure.Controllers
     {
         public MediaPlayer MediaPlayer { get; private set; }
         public MediaPlaybackItem MediaPlaybackItem { get; private set; }
-        public SongProvider SongProvider { get; private set; }
         public AbajureSettings Settings { get; private set; }
         public MediaSource MediaSource { get; private set; }
+        public MediaPlaybackList MediaPlaybackList { get; private set; }
         public Song CurrentSong { get; private set; }
         public ABEnum ABCurrentStatus { get; private set; } = ABEnum.Released;
         public TimeSpan CurrentDuration { get; private set; }
         public TimeSpan ABMarkA { get; private set; } = TimeSpan.Zero;
         public TimeSpan ABMarkB { get; private set; } = TimeSpan.Zero;
-        public SongSet SongSet { get { return SongProvider.SongSet; } }
         public void ABSetMark(ABEnum ab)
         {
             switch (ab)
@@ -56,26 +56,80 @@ namespace Abajure.Controllers
             MediaOpenOperationCompleted?.Invoke(this, e);
         }
 
-
+        private SongSet _currentSongsSet;
 
         private PlayerProvider() { }
 
         private async Task<bool> Init()
         {
-            SongProvider = new SongProvider();
-            SongProvider.ScanLib();
-
             Settings = await AbajureSettings.GetSettingsAsync();
 
             MediaPlayer = new MediaPlayer();
+            MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
+            MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+
+            MediaPlaybackList = new MediaPlaybackList();
+            MediaPlaybackList.MaxPlayedItemsToKeepOpen = 3;
+            MediaPlaybackList.CurrentItemChanged += MediaPlaybackList_CurrentItemChanged;
+            MediaPlaybackList.ItemOpened += MediaPlaybackList_ItemOpened;
+
             if (Settings.AudioDeviceId != null)
             {
                 var audioDevice = await DeviceInformation.CreateFromIdAsync(Settings.AudioDeviceId);
-                MediaPlayer.AudioDevice = audioDevice;
+                try
+                {
+                    MediaPlayer.AudioDevice = audioDevice;
+                }
+                catch { }
             }
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
 
             return true;
+        }
+
+        private void MediaPlaybackList_ItemOpened(MediaPlaybackList sender, MediaPlaybackItemOpenedEventArgs args)
+        {
+            Debug.WriteLine("ItemOpened {0}", args.Item.Source.Duration);
+
+        }
+
+        private void MediaPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
+            Debug.WriteLine("CurrentItemChanged {0}", args.NewItem.Source.Duration);
+            CurrentDuration = args.NewItem.Source.Duration.GetValueOrDefault();
+            OnMediaOpenOperationCompleted(EventArgs.Empty);
+            MediaPlayer.PlaybackSession.PlaybackRate = Settings.PlayBackRate;
+            int inx = (int)MediaPlaybackList.CurrentItemIndex;
+
+            if (inx >= 0 && args.OldItem != null)
+            {
+                CurrentSong = _currentSongsSet[inx];
+                UpdateDisplayMeta(_currentSongsSet[inx]);
+            }
+        }
+
+        public void ChangeCurrentPlayingSong(Song song)
+        {
+            var inx = _currentSongsSet.IndexOf(song);
+            if (MediaPlayer.PlaybackSession.PlaybackState != MediaPlaybackState.Playing)
+                MediaPlayer.Play();
+            if (inx >= 0)
+            {
+                MediaPlaybackList.MoveTo((uint)inx);
+                //UpdateDisplayMeta(_currentSongsSet[inx]);
+            }
+        }
+
+        public void SetMediaPlaybackList(SongSet songs)
+        {
+            _currentSongsSet = songs;
+
+            if (MediaPlaybackList.Items.Count > 0)
+                MediaPlaybackList.Items.Clear();
+            foreach (var song in songs)
+                MediaPlaybackList.Items.Add(song.MediaPlaybackItem);
+            MediaPlayer.Pause();
+            MediaPlayer.Source = MediaPlaybackList;
         }
 
         public async void SetMediaSourceAsync(Song s)
@@ -121,6 +175,7 @@ namespace Abajure.Controllers
 
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
+            MediaSource = MediaPlaybackList.CurrentItem.Source;
             if (MediaSource != null && MediaSource.Duration != TimeSpan.Zero)
             {
 
@@ -143,14 +198,14 @@ namespace Abajure.Controllers
             var thumb = await song.GetThumbNail();
             {
 
-                MediaItemDisplayProperties props = MediaPlaybackItem.GetDisplayProperties();
+                MediaItemDisplayProperties props = song.MediaPlaybackItem.GetDisplayProperties();
                 props.Type = MediaPlaybackType.Music;
                 props.MusicProperties.Artist = song.Artist;
                 props.MusicProperties.Title = song.Title;
                 props.MusicProperties.AlbumTitle = song.Album;
 
 
-                var _systemMediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
+                var _systemMediaTransportControls = MediaPlayer.SystemMediaTransportControls;
                 SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
                 updater.Type = MediaPlaybackType.Music;
                 updater.MusicProperties.Artist = song.Artist;
@@ -163,7 +218,7 @@ namespace Abajure.Controllers
                     props.Thumbnail = thumbStream;
                     updater.Thumbnail = thumbStream;
                 }
-                MediaPlaybackItem.ApplyDisplayProperties(props);
+                song.MediaPlaybackItem.ApplyDisplayProperties(props);
                 updater.Update();
             }
         }
