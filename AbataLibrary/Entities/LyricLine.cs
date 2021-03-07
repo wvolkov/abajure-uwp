@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
     [DataContract]
-    class LyricLine
+    public class LyricLine
     {
         [DataMember]
         public string Line { get; private set; }
@@ -37,7 +37,7 @@ namespace Abajure.Entities
     }
 
     [CollectionDataContract]
-    class LyricLineSet : ObservableCollection<LyricLine>
+    public class LyricLineSet : ObservableCollection<LyricLine>
     {
         public bool Timed { get { return this.FirstOrDefault(i => i.End != TimeSpan.Zero) != null; }}
 

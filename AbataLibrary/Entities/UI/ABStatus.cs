@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Abajure.Entities.UI
+namespace AbataLibrary.Entities.UI
 {
-    static class ABStatus
+    public static class ABStatus
     {
         static ABEnum _value = ABEnum.Released;
 

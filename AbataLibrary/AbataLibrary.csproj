@@ -107,7 +107,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AbataConfig.cs" />
-    <Compile Include="AbataProvider.cs" />
+    <Compile Include="Controllers\AbataProvider.cs" />
+    <Compile Include="Controllers\LyricsProvider.cs" />
+    <Compile Include="Controllers\PlayerProvider.cs" />
+    <Compile Include="Controllers\SongProvider.cs" />
+    <Compile Include="Entities\AbajureSettings.cs" />
+    <Compile Include="Entities\LyricLine.cs" />
+    <Compile Include="Entities\MusicFile.cs" />
+    <Compile Include="Entities\MusicFileExtension.cs" />
+    <Compile Include="Entities\Song.cs" />
+    <Compile Include="Entities\UI\ABEnum.cs" />
+    <Compile Include="Entities\UI\ABStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\AbataLibrary.rd.xml" />
   </ItemGroup>
@@ -117,6 +127,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

@@ -6,14 +6,22 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Search;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
-    class SongProvider
+    public class SongProvider
     {
         SongSet _orig;
         public SongSet SongSet { get; private set; }
+        public bool IsScanComplete { get; private set; }
 
-        public SongProvider()
+        public event EventHandler ScanComplete;
+
+        public void OnScanComplete(EventArgs e)
+        {
+            this.ScanComplete?.Invoke(this, e);
+        }
+
+        private SongProvider()
         {
             _orig = new SongSet();
             SongSet = _orig;
@@ -21,6 +29,8 @@ namespace Abajure.Entities
 
         public async void ScanLib()
         {
+            IsScanComplete = false;
+
             QueryOptions queryOption = new QueryOptions
                 (CommonFileQuery.OrderByMusicProperties, new string[] { ".mp3", ".m4a" });
 
@@ -32,7 +42,11 @@ namespace Abajure.Entities
 
             var files = await KnownFolders.MusicLibrary.CreateFileQueryWithOptions(queryOption).GetFilesAsync();
 
-            _orig.AddSongSetAsync(files);
+            bool success = await _orig.AddSongSetAsync(files);
+
+            IsScanComplete = true;
+
+            OnScanComplete(EventArgs.Empty);
         }
 
         public void Search(string strPat)
@@ -43,6 +57,18 @@ namespace Abajure.Entities
                                                         || i.Album.ToLower().Contains(strPat.ToLower())));
             else
                 SongSet = _orig;
+        }
+
+        private static SongProvider _provider;
+
+        public static SongProvider GetSongProvider()
+        {
+            if (_provider == null)
+            {
+                _provider = new SongProvider();
+                _provider.ScanLib();
+            }
+            return _provider;
         }
     }
 }

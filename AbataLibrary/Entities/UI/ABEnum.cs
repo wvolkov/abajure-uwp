@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Abajure.Entities.UI
+namespace AbataLibrary.Entities.UI
 {
-    enum ABEnum
+    public enum ABEnum
     {
         Released = 1 << 1,
         APressed = 1 << 2,

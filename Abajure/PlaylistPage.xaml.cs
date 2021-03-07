@@ -1,6 +1,6 @@
-﻿using Abajure.Controllers;
-using Abajure.Entities;
-using Abajure.Entities.UI;
+﻿using AbataLibrary.Controllers;
+using AbataLibrary.Entities;
+using AbataLibrary.Entities.UI;
 using Abajure.Pages;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,8 @@ namespace Abajure
     /// </summary>
     public sealed partial class PlaylistPage : Page
     {
-        PlayerProvider _provider;
+        PlayerProvider _playerProvider;
+        SongProvider _songProvider;
 
         public PlaylistPage()
         {
@@ -44,33 +45,48 @@ namespace Abajure
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
         }
 
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            await InitPlayerProvider();
+            InitSongProvider();
+
+            if (tbHeader.Text != "")
+                FilterSongsBy(tbHeader.Text);
+        }
+
         private async Task<bool> InitPlayerProvider()
         {
-            _provider = await PlayerProvider.GetPlayerProvider();
-            UpdateUIcmdXspeed(String.Format("x{0:0.0}", _provider.Settings.PlayBackRate));
+            _playerProvider = await PlayerProvider.GetPlayerProvider();
+            UpdateUIcmdXspeed(String.Format("x{0:0.0}", _playerProvider.Settings.PlayBackRate));
             UpdateUIslider();
-            _provider.MediaOpenOperationCompleted += _provider_MediaOpenOperationCompleted;
-            _provider.MediaTimeChanged += _provider_MediaTimeChanged;
-            _provider.SongProvider.SongSet.CollectionChanged += SongSet_CollectionChanged;
+            _playerProvider.MediaOpenOperationCompleted += _provider_MediaOpenOperationCompleted;
+            _playerProvider.MediaTimeChanged += _provider_MediaTimeChanged;
 
             return true;
+        }
 
+        private void InitSongProvider()
+        {
+            _songProvider = SongProvider.GetSongProvider();
+            _songProvider.ScanComplete += _songProvider_ScanComplete;
+            lvMusicFiles.ItemsSource = _songProvider.SongSet;
+        }
+
+        private void _songProvider_ScanComplete(object sender, EventArgs e)
+        {
+            lvMusicFiles.IsItemClickEnabled = true;
+            _progressRing.IsActive = false;
+             _playerProvider.SetMediaPlaybackList(_songProvider.SongSet);
         }
 
         private void UpdateUIslider()
         {
-            if (_provider.MediaSource != null)
+            if (_playerProvider.MediaSource != null)
             {
-                InitSlidersValues(0, _provider.MediaPlayer.PlaybackSession.NaturalDuration.TotalSeconds, 1);
+                InitSlidersValues(0, _playerProvider.MediaPlayer.PlaybackSession.NaturalDuration.TotalSeconds, 1);
                 _tbTimeFrom.Text = "00:00";
-                _tbTimeTo.Text = _provider.CurrentDuration.ToString("mm\\:ss");
+                _tbTimeTo.Text = _playerProvider.CurrentDuration.ToString("mm\\:ss");
             }
-        }
-
-        private void SongSet_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (_provider.SongProvider.SongSet.Count > 5)
-                _progressRing.IsActive = false;
         }
 
         private async void _provider_MediaTimeChanged(PlayerProvider sender, MediaTimeChangedEventArgs e)
@@ -84,20 +100,20 @@ namespace Abajure
 
         private async void _provider_MediaOpenOperationCompleted(object sender, EventArgs e)
         {
-            await System.Threading.Tasks.Task.Delay(500);
+            await Task.Delay(500);
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, UpdateUIslider);
         }
 
 
-        private void lvMusicFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void lvMusicFiles_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var s = e.OriginalSource;
-            var selItem = e.AddedItems?.FirstOrDefault() as Song;
+            var selItem = e.ClickedItem as Song;
             if (selItem != null)
             {
-                _provider.ABRefresh();
-                SetABButtonGlyph(_provider.ABCurrentStatus);
-                _provider.SetMediaSourceAsync(selItem);
+                _playerProvider.ABRefresh();
+                SetABButtonGlyph(_playerProvider.ABCurrentStatus);
+                _playerProvider.ChangeCurrentPlayingSong(selItem);
+                //_playerProvider.SetMediaSourceAsync(selItem);
                 abBtnPlayPause.Icon = new SymbolIcon(Symbol.Pause);
 
             }
@@ -128,11 +144,11 @@ namespace Abajure
                 switch (si.Symbol)
                 {
                     case Symbol.Pause:
-                        _provider.MediaPlayer.Pause();
+                        _playerProvider.MediaPlayer.Pause();
                         abBtnPlayPause.Icon = new SymbolIcon(Symbol.Play);
                         break;
                     case Symbol.Play:
-                        _provider.MediaPlayer.Play();
+                        _playerProvider.MediaPlayer.Play();
                         abBtnPlayPause.Icon = new SymbolIcon(Symbol.Pause);
                         break;
                 }
@@ -142,23 +158,23 @@ namespace Abajure
 
         private void abBtnFF_Click(object sender, RoutedEventArgs e)
         {
-            _provider.MediaPlayer.PlaybackSession.Position += TimeSpan.FromSeconds(10);
+            _playerProvider.MediaPlayer.PlaybackSession.Position += TimeSpan.FromSeconds(10);
         }
 
         private void abBtnBF_Click(object sender, RoutedEventArgs e)
         {
-            _provider.MediaPlayer.PlaybackSession.Position -= TimeSpan.FromSeconds(10);
+            _playerProvider.MediaPlayer.PlaybackSession.Position -= TimeSpan.FromSeconds(10);
         }
 
 
         private async void AbBtnXspeed_Click(object sender, RoutedEventArgs e)
         {
             var popUp = new PopupMenu();
-            popUp.Commands.Add(new UICommand("x4.0", command => _provider.MediaPlayer.PlaybackSession.PlaybackRate = 4.0));
-            popUp.Commands.Add(new UICommand("x2.0", command => _provider.MediaPlayer.PlaybackSession.PlaybackRate = 2.0));
-            popUp.Commands.Add(new UICommand("x1.5", command => _provider.MediaPlayer.PlaybackSession.PlaybackRate = 1.5));
-            popUp.Commands.Add(new UICommand("x1.0", command => _provider.MediaPlayer.PlaybackSession.PlaybackRate = 1.0));
-            popUp.Commands.Add(new UICommand("x0.5", command => _provider.MediaPlayer.PlaybackSession.PlaybackRate = 0.5));
+            popUp.Commands.Add(new UICommand("x4.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 4.0));
+            popUp.Commands.Add(new UICommand("x2.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 2.0));
+            popUp.Commands.Add(new UICommand("x1.5", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 1.5));
+            popUp.Commands.Add(new UICommand("x1.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 1.0));
+            popUp.Commands.Add(new UICommand("x0.5", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 0.5));
 
             var button = (Button)sender;
             var transform = button.TransformToVisual(null);
@@ -168,8 +184,8 @@ namespace Abajure
             if (result != null)
             {
                 UpdateUIcmdXspeed(result.Label);
-                _provider.Settings.PlayBackRate = Convert.ToDouble(result.Label.Replace("x", ""));
-                _provider.Settings.Save();
+                _playerProvider.Settings.PlayBackRate = Convert.ToDouble(result.Label.Replace("x", ""));
+                _playerProvider.Settings.Save();
             }
         }
 
@@ -193,32 +209,37 @@ namespace Abajure
 
         private void FilterSongsBy(string pattern)
         {
-            _provider.SongProvider.Search(pattern);
-            lvMusicFiles.ItemsSource = _provider.SongProvider.SongSet;
+            _songProvider.Search(pattern);
+            if (pattern != "" && _songProvider.SongSet != null)
+                lvMusicFiles.IsItemClickEnabled = true;
+            else
+                lvMusicFiles.IsItemClickEnabled = _songProvider.IsScanComplete;
+            lvMusicFiles.ItemsSource = _songProvider.SongSet;
+            _playerProvider.SetMediaPlaybackList(_songProvider.SongSet);
         }
 
         private void AbBtnAB_Click(object sender, RoutedEventArgs e)
         {
-            var status = _provider.ABGetNextStatus();
+            var status = _playerProvider.ABGetNextStatus();
             SetABButtonGlyph(status);
         }
 
         private void SetABButtonGlyph(ABEnum abEnum)
         {
-            _provider.ABSetMark(abEnum);
+            _playerProvider.ABSetMark(abEnum);
             switch (abEnum)
             {
                 case ABEnum.APressed:
                     _abFontIconOne.Glyph = "\uE884";
                     _abFontIconTwo.Glyph = "";
                     _sliderMarkA.Visibility = Visibility.Visible;
-                    _sliderMarkA.Value = _provider.ABMarkA.TotalSeconds;
+                    _sliderMarkA.Value = _playerProvider.ABMarkA.TotalSeconds;
                     break;
                 case ABEnum.BPressed:
                     _abFontIconOne.Glyph = "\uE884";
                     _abFontIconTwo.Glyph = "\uE882";
                     _sliderMarkB.Visibility = Visibility.Visible;
-                    _sliderMarkB.Value = _provider.ABMarkB.TotalSeconds;
+                    _sliderMarkB.Value = _playerProvider.ABMarkB.TotalSeconds;
                     break;
                 case ABEnum.Released:
                     _abFontIconOne.Glyph = "";
@@ -250,27 +271,17 @@ namespace Abajure
             }
         }
 
-        private async void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            await InitPlayerProvider();
-            if (tbHeader.Text != "")
-                FilterSongsBy(tbHeader.Text);
-            else
-                lvMusicFiles.ItemsSource = _provider.SongProvider.SongSet;
-        }
-
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            _provider.MediaOpenOperationCompleted -= _provider_MediaOpenOperationCompleted;
-            _provider.MediaTimeChanged -= _provider_MediaTimeChanged;
-            _provider.SongProvider.SongSet.CollectionChanged -= SongSet_CollectionChanged;
+            _playerProvider.MediaOpenOperationCompleted -= _provider_MediaOpenOperationCompleted;
+            _playerProvider.MediaTimeChanged -= _provider_MediaTimeChanged;
         }
 
         private void AbBtnLyrics_Click(object sender, RoutedEventArgs e)
         {
-            if (_provider.CurrentSong != null)
-                Frame.Navigate(typeof(AbajureLyrics), _provider.CurrentSong, new DrillInNavigationTransitionInfo());
+            if (_playerProvider.CurrentSong != null)
+                Frame.Navigate(typeof(AbajureLyrics), _playerProvider.CurrentSong, new DrillInNavigationTransitionInfo());
         }
     }
 }

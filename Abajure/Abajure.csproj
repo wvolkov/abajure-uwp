@@ -102,22 +102,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controllers\LyricsProvider.cs" />
-    <Compile Include="Controllers\PlayerProvider.cs" />
-    <Compile Include="Entities\LyricLine.cs" />
     <Compile Include="Pages\AbajureLyrics.xaml.cs">
       <DependentUpon>AbajureLyrics.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\AbajureSettings.xaml.cs">
       <DependentUpon>AbajureSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Entities\AbajureSettings.cs" />
-    <Compile Include="Entities\MusicFile.cs" />
-    <Compile Include="Entities\MusicFileExtension.cs" />
-    <Compile Include="Entities\Song.cs" />
-    <Compile Include="Controllers\SongProvider.cs" />
-    <Compile Include="Entities\UI\ABEnum.cs" />
-    <Compile Include="Entities\UI\ABStatus.cs" />
     <Compile Include="PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
@@ -213,12 +203,6 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.4</Version>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3">
-      <Version>1.1.9</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -228,7 +212,12 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\AbataLibrary\AbataLibrary.csproj">
+      <Project>{4a4a58b2-48fd-4436-8138-12f72b866b18}</Project>
+      <Name>AbataLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
-    class Song
+    public class Song
     {
         public string SongPath { get; private set; }
         public DateTimeOffset DateModified { get; private set; }
@@ -20,6 +22,7 @@ namespace Abajure.Entities
         public string Subtitle { get; private set; }
         public uint TrackNumber { get; private set; }
         public uint Year { get; private set; }
+        public MediaPlaybackItem MediaPlaybackItem { get; private set;}
 
         public string DurationString
         {
@@ -34,6 +37,7 @@ namespace Abajure.Entities
         {
             MusicProperties mp = await songFile.Properties.GetMusicPropertiesAsync();
             BasicProperties bp = await songFile.GetBasicPropertiesAsync();
+            MediaPlaybackItem pbi = new MediaPlaybackItem(MediaSource.CreateFromStorageFile(songFile));
 
             Song song = new Song()
             {
@@ -47,7 +51,8 @@ namespace Abajure.Entities
                 Title = mp.Title,
                 Subtitle = mp.Subtitle,
                 TrackNumber = mp.TrackNumber,
-                Year = mp.Year
+                Year = mp.Year,
+                MediaPlaybackItem = pbi
             };
 
             return song;
@@ -66,7 +71,7 @@ namespace Abajure.Entities
         }
     }
 
-    class SongSet : ObservableCollection<Song>
+    public class SongSet : ObservableCollection<Song>
     {
         public SongSet() { }
         public SongSet(IEnumerable<Song> col)
@@ -78,10 +83,12 @@ namespace Abajure.Entities
                 songSet.Add(await Song.CreateSongAsync(file));
         }
 
-        public async void AddSongSetAsync(IReadOnlyList<StorageFile> files)
+        public async Task<bool> AddSongSetAsync(IReadOnlyList<StorageFile> files)
         {
             foreach (StorageFile file in files)
                 this.Add(await Song.CreateSongAsync(file));
+
+            return true;
         }
     }
 }

@@ -37,7 +37,6 @@
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9D;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarSeparator/>
             <AppBarButton x:Name="abBtnAB" HorizontalAlignment="Left" VerticalContentAlignment="Center" Label="AB" VerticalAlignment="Top" Click="AbBtnAB_Click">
                 <Grid>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE78A;"/>
@@ -45,6 +44,7 @@
                     <FontIcon x:Name="_abFontIconTwo" FontFamily="Segoe MDL2 Assets" Margin="34,0,0,0"/>
                 </Grid>
             </AppBarButton>
+            <AppBarSeparator/>
             <AppBarButton x:Name="abBtnLyrics" Click="AbBtnLyrics_Click" Label="Lyrics">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE90B;" FontFamily="Segoe MDL2 Assets"/>
@@ -75,7 +75,12 @@
             <TextBox Margin="5,5,5,5" x:Name="tbHeader" TextChanged="TextBox_TextChanged" Height="45" Width="Auto" FontSize="25" TextAlignment="Left" Grid.Column="1"/>
             <ProgressRing x:Name="_progressRing" Grid.Column="2" HorizontalAlignment="Center" IsActive="True" FontSize="20"/>
         </Grid>
-        <ListView x:Name="lvMusicFiles" Margin="10,10.333,10,4.667" ItemsSource="{x:Bind _provider.SongProvider.SongSet}" SelectionChanged="lvMusicFiles_SelectionChanged" Grid.Row="1">
+        <ListView x:Name="lvMusicFiles"
+                  Margin="10,10.333,10,4.667"
+                  ItemsSource="{x:Bind _songProvider.SongSet}"
+                  ItemClick="lvMusicFiles_ItemClick"
+                  Grid.Row="1"
+                  IsItemClickEnabled="False">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

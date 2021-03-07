@@ -11,10 +11,10 @@ using Windows.Media.Devices;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
     [DataContract]
-    class AbajureSettings
+    public class AbajureSettings
     {
         private static AbajureSettings _abajureSettings;
 
