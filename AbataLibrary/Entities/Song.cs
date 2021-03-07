@@ -7,9 +7,9 @@ using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
-    class Song
+    public class Song
     {
         public string SongPath { get; private set; }
         public DateTimeOffset DateModified { get; private set; }
@@ -71,7 +71,7 @@ namespace Abajure.Entities
         }
     }
 
-    class SongSet : ObservableCollection<Song>
+    public class SongSet : ObservableCollection<Song>
     {
         public SongSet() { }
         public SongSet(IEnumerable<Song> col)

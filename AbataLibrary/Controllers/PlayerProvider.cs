@@ -1,5 +1,5 @@
-﻿using Abajure.Entities;
-using Abajure.Entities.UI;
+﻿using AbataLibrary.Entities;
+using AbataLibrary.Entities.UI;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -11,9 +11,9 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 
-namespace Abajure.Controllers
+namespace AbataLibrary.Controllers
 {
-    class PlayerProvider
+    public class PlayerProvider
     {
         public MediaPlayer MediaPlayer { get; private set; }
         public MediaPlaybackItem MediaPlaybackItem { get; private set; }
@@ -248,7 +248,7 @@ namespace Abajure.Controllers
         }
     }
 
-    class MediaTimeChangedEventArgs : EventArgs
+    public class MediaTimeChangedEventArgs : EventArgs
     {
         public double TotalSeconds { get; private set; }
         public TimeSpan ElapsedTime { get; private set; }

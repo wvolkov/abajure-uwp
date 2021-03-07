@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Search;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
-    class SongProvider
+    public class SongProvider
     {
         SongSet _orig;
         public SongSet SongSet { get; private set; }

@@ -1,4 +1,4 @@
-﻿using Abajure.Controllers;
+﻿using AbataLibrary.Controllers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using AbataLibrary;
 
 namespace Abajure
 {
@@ -34,7 +35,15 @@ namespace Abajure
         {
             this.InitializeComponent();
             this.InitializeFolders();
+            this.InitializeDB();
             this.Suspending += OnSuspending;
+        }
+
+        private void InitializeDB()
+        {
+            AbataProvider aba = AbataProvider.GetProvider();
+            if (!aba.DBExists)
+                aba.CreateDataBase();
         }
 
         private async void InitializeFolders()

@@ -12,10 +12,10 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 
-namespace Abajure.Entities
+namespace AbataLibrary.Entities
 {
     [DataContract]
-    class MusicFile
+    public class MusicFile
     {
         private StorageFile _file;
 

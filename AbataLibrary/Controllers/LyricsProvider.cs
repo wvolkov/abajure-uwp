@@ -1,4 +1,4 @@
-﻿using Abajure.Entities;
+﻿using AbataLibrary.Entities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,9 +11,9 @@ using Windows.Storage.Streams;
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
 
-namespace Abajure.Controllers
+namespace AbataLibrary.Controllers
 {
-    static class LyricsProvider
+    public static class LyricsProvider
     {
         private static string _lastErrorMessage;
 
