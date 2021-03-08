@@ -64,18 +64,22 @@ namespace AbataLibrary.Controllers
         {
             Settings = await AbajureSettings.GetSettingsAsync();
 
-            MediaPlayer = new MediaPlayer();
-            MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
+            MediaPlayer = new MediaPlayer()
+            {
+                AudioCategory = MediaPlayerAudioCategory.Media
+            };
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
-            MediaPlaybackList = new MediaPlaybackList();
-            MediaPlaybackList.MaxPlayedItemsToKeepOpen = 3;
+            MediaPlaybackList = new MediaPlaybackList()
+            {
+                MaxPlayedItemsToKeepOpen = 3
+            };
             MediaPlaybackList.CurrentItemChanged += MediaPlaybackList_CurrentItemChanged;
             MediaPlaybackList.ItemOpened += MediaPlaybackList_ItemOpened;
 
             if (Settings.AudioDeviceId != null)
             {
-                var audioDevice = await DeviceInformation.CreateFromIdAsync(Settings.AudioDeviceId);
+                DeviceInformation audioDevice = await DeviceInformation.CreateFromIdAsync(Settings.AudioDeviceId);
                 try
                 {
                     MediaPlayer.AudioDevice = audioDevice;
@@ -110,7 +114,7 @@ namespace AbataLibrary.Controllers
 
         public void ChangeCurrentPlayingSong(Song song)
         {
-            var inx = _currentSongsSet.IndexOf(song);
+            int inx = _currentSongsSet.IndexOf(song);
             if (MediaPlayer.PlaybackSession.PlaybackState != MediaPlaybackState.Playing)
                 MediaPlayer.Play();
             if (inx >= 0)
@@ -126,7 +130,7 @@ namespace AbataLibrary.Controllers
 
             if (MediaPlaybackList.Items.Count > 0)
                 MediaPlaybackList.Items.Clear();
-            foreach (var song in songs)
+            foreach (Song song in songs)
                 MediaPlaybackList.Items.Add(song.MediaPlaybackItem);
             MediaPlayer.Pause();
             MediaPlayer.Source = MediaPlaybackList;
@@ -140,8 +144,10 @@ namespace AbataLibrary.Controllers
             {
                 MediaPlayer.Pause();
                 MediaPlayer.Dispose();
-                MediaPlayer = new MediaPlayer();
-                MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
+                MediaPlayer = new MediaPlayer()
+                {
+                    AudioCategory = MediaPlayerAudioCategory.Media
+                };                
                 MediaSource.OpenOperationCompleted -= _currentMedia_OpenOperationCompleted;
                 MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
                 MediaPlayer.Source = null;
@@ -195,7 +201,7 @@ namespace AbataLibrary.Controllers
 
         private async void UpdateDisplayMeta(Song song)
         {
-            var thumb = await song.GetThumbNail();
+            StorageItemThumbnail thumb = await song.GetThumbNail();
             {
 
                 MediaItemDisplayProperties props = song.MediaPlaybackItem.GetDisplayProperties();
@@ -205,7 +211,7 @@ namespace AbataLibrary.Controllers
                 props.MusicProperties.AlbumTitle = song.Album;
 
 
-                var _systemMediaTransportControls = MediaPlayer.SystemMediaTransportControls;
+                SystemMediaTransportControls _systemMediaTransportControls = MediaPlayer.SystemMediaTransportControls;
                 SystemMediaTransportControlsDisplayUpdater updater = _systemMediaTransportControls.DisplayUpdater;
                 updater.Type = MediaPlaybackType.Music;
                 updater.MusicProperties.Artist = song.Artist;
@@ -214,7 +220,7 @@ namespace AbataLibrary.Controllers
 
                 if (thumb != null && thumb.Type == ThumbnailType.Image)
                 {
-                    var thumbStream = RandomAccessStreamReference.CreateFromStream(thumb);
+                    RandomAccessStreamReference thumbStream = RandomAccessStreamReference.CreateFromStream(thumb);
                     props.Thumbnail = thumbStream;
                     updater.Thumbnail = thumbStream;
                 }

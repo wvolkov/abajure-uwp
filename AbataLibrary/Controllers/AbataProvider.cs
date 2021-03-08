@@ -51,7 +51,7 @@ namespace AbataLibrary
             string sqlCmd = "";
             db.Open();
 
-            var command = db.CreateCommand();
+            SqliteCommand command = db.CreateCommand();
             //Songs Table
             sqlCmd = @"CREATE TABLE `songs` (
 	                                `id`	INTEGER PRIMARY KEY AUTOINCREMENT,

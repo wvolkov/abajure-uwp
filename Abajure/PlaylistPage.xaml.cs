@@ -61,8 +61,14 @@ namespace Abajure
             UpdateUIslider();
             _playerProvider.MediaOpenOperationCompleted += _provider_MediaOpenOperationCompleted;
             _playerProvider.MediaTimeChanged += _provider_MediaTimeChanged;
+            _playerProvider.MediaPlaybackList.CurrentItemChanged += MediaPlaybackList_CurrentItemChanged;
 
             return true;
+        }
+
+        private void MediaPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
+            throw new NotImplementedException();
         }
 
         private void InitSongProvider()
@@ -105,10 +111,9 @@ namespace Abajure
         }
 
 
-        private void lvMusicFiles_ItemClick(object sender, ItemClickEventArgs e)
+        private void LvMusicFiles_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var selItem = e.ClickedItem as Song;
-            if (selItem != null)
+            if (e.ClickedItem is Song selItem)
             {
                 _playerProvider.ABRefresh();
                 SetABButtonGlyph(_playerProvider.ABCurrentStatus);
@@ -137,10 +142,9 @@ namespace Abajure
         }
 
 
-        private void abBtnPlayPause_Click(object sender, RoutedEventArgs e)
+        private void AbBtnPlayPause_Click(object sender, RoutedEventArgs e)
         {
-            var si = abBtnPlayPause.Icon as SymbolIcon;
-            if (si != null)
+            if (abBtnPlayPause.Icon is SymbolIcon si)
                 switch (si.Symbol)
                 {
                     case Symbol.Pause:
@@ -156,12 +160,12 @@ namespace Abajure
         }
 
 
-        private void abBtnFF_Click(object sender, RoutedEventArgs e)
+        private void AbBtnFF_Click(object sender, RoutedEventArgs e)
         {
             _playerProvider.MediaPlayer.PlaybackSession.Position += TimeSpan.FromSeconds(10);
         }
 
-        private void abBtnBF_Click(object sender, RoutedEventArgs e)
+        private void AbBtnBF_Click(object sender, RoutedEventArgs e)
         {
             _playerProvider.MediaPlayer.PlaybackSession.Position -= TimeSpan.FromSeconds(10);
         }
@@ -169,16 +173,16 @@ namespace Abajure
 
         private async void AbBtnXspeed_Click(object sender, RoutedEventArgs e)
         {
-            var popUp = new PopupMenu();
+            PopupMenu popUp = new PopupMenu();
             popUp.Commands.Add(new UICommand("x4.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 4.0));
             popUp.Commands.Add(new UICommand("x2.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 2.0));
             popUp.Commands.Add(new UICommand("x1.5", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 1.5));
             popUp.Commands.Add(new UICommand("x1.0", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 1.0));
             popUp.Commands.Add(new UICommand("x0.5", command => _playerProvider.MediaPlayer.PlaybackSession.PlaybackRate = 0.5));
 
-            var button = (Button)sender;
-            var transform = button.TransformToVisual(null);
-            var point = transform.TransformPoint(new Point(button.ActualWidth / 2, 0));
+            Button button = (Button)sender;
+            GeneralTransform transform = button.TransformToVisual(null);
+            Point point = transform.TransformPoint(new Point(button.ActualWidth / 2, 0));
 
             IUICommand result = await popUp.ShowAsync(point);
             if (result != null)
@@ -220,7 +224,7 @@ namespace Abajure
 
         private void AbBtnAB_Click(object sender, RoutedEventArgs e)
         {
-            var status = _playerProvider.ABGetNextStatus();
+            ABEnum status = _playerProvider.ABGetNextStatus();
             SetABButtonGlyph(status);
         }
 
@@ -276,6 +280,7 @@ namespace Abajure
             base.OnNavigatedFrom(e);
             _playerProvider.MediaOpenOperationCompleted -= _provider_MediaOpenOperationCompleted;
             _playerProvider.MediaTimeChanged -= _provider_MediaTimeChanged;
+            _playerProvider.MediaPlaybackList.CurrentItemChanged -= MediaPlaybackList_CurrentItemChanged;
         }
 
         private void AbBtnLyrics_Click(object sender, RoutedEventArgs e)

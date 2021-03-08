@@ -48,7 +48,7 @@ namespace Abajure
 
         private async void InitializeFolders()
         {
-            var lyricsFolder = await ApplicationData.Current.LocalFolder.TryGetItemAsync("lyrics");
+            IStorageItem lyricsFolder = await ApplicationData.Current.LocalFolder.TryGetItemAsync("lyrics");
             if (lyricsFolder == null)
                 await ApplicationData.Current.LocalFolder.CreateFolderAsync("lyrics");
         }
@@ -60,13 +60,10 @@ namespace Abajure
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
-        {
-            Frame rootFrame = Window.Current.Content as Frame;
-            
-
+        {        
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
-            if (rootFrame == null)
+            if (!(Window.Current.Content is Frame rootFrame))
             {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
@@ -119,7 +116,7 @@ namespace Abajure
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
+            SuspendingDeferral deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }

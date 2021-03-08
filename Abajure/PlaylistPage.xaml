@@ -26,13 +26,13 @@
                     </Grid>
                 </Grid>
             </AppBarButton>
-            <AppBarButton x:Name="abBtnBF" HorizontalAlignment="Left" Label="Backward" Margin="0,0,0,0" VerticalAlignment="Top" Click="abBtnBF_Click">
+            <AppBarButton x:Name="abBtnBF" HorizontalAlignment="Left" Label="Backward" Margin="0,0,0,0" VerticalAlignment="Top" Click="AbBtnBF_Click">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9E;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
-            <AppBarButton x:Name="abBtnPlayPause" HorizontalAlignment="Left" Label="Play" Margin="0,0,0,0" VerticalAlignment="Top" Click="abBtnPlayPause_Click" Icon="Play"/>
-            <AppBarButton x:Name="abBtnFF" HorizontalAlignment="Left" Label="Forward" Margin="0,0,0,0" VerticalAlignment="Top" Click="abBtnFF_Click">
+            <AppBarButton x:Name="abBtnPlayPause" HorizontalAlignment="Left" Label="Play" Margin="0,0,0,0" VerticalAlignment="Top" Click="AbBtnPlayPause_Click" Icon="Play"/>
+            <AppBarButton x:Name="abBtnFF" HorizontalAlignment="Left" Label="Forward" Margin="0,0,0,0" VerticalAlignment="Top" Click="AbBtnFF_Click">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEB9D;"/>
                 </AppBarButton.Icon>
@@ -78,7 +78,7 @@
         <ListView x:Name="lvMusicFiles"
                   Margin="10,10.333,10,4.667"
                   ItemsSource="{x:Bind _songProvider.SongSet}"
-                  ItemClick="lvMusicFiles_ItemClick"
+                  ItemClick="LvMusicFiles_ItemClick"
                   Grid.Row="1"
                   IsItemClickEnabled="False">
             <ListView.ItemContainerStyle>

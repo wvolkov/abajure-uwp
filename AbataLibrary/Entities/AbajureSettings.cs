@@ -53,7 +53,7 @@ namespace AbataLibrary.Entities
             IBuffer buffMsg;
 
             DataContractSerializer sessionSerializer = new DataContractSerializer(typeof(AbajureSettings));
-            using (var stream = new MemoryStream())
+            using (MemoryStream stream = new MemoryStream())
             {
                 sessionSerializer.WriteObject(stream, this);
 
@@ -83,9 +83,9 @@ namespace AbataLibrary.Entities
             try
             {
                 DataContractSerializer sessionSerializer = new DataContractSerializer(typeof(AbajureSettings));
-                using (var sessionFileStream = await ApplicationData.Current.LocalFolder.OpenStreamForReadAsync("AbajureSettings.xml"))
+                using (Stream sessionFileStream = await ApplicationData.Current.LocalFolder.OpenStreamForReadAsync("AbajureSettings.xml"))
                 {
-                    var obj = sessionSerializer.ReadObject(sessionFileStream);
+                    object obj = sessionSerializer.ReadObject(sessionFileStream);
                     if (obj != null)
                         return (AbajureSettings)obj;
                 }

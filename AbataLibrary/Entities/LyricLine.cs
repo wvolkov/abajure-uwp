@@ -47,8 +47,8 @@ namespace AbataLibrary.Entities
 
         public LyricLineSet(string lyrics)
         {
-            var lyricLines = lyrics.Split('\n');
-            foreach (var line in lyricLines)
+            string[] lyricLines = lyrics.Split('\n');
+            foreach (string line in lyricLines)
                 this.Add(new LyricLine(line));
         }
 
@@ -61,10 +61,10 @@ namespace AbataLibrary.Entities
                 prevLine = "",
                 newLine = "";
 
-            foreach (var lyric in jsLyrics)
+            foreach (JToken lyric in jsLyrics)
             {
                 newLine = lyric["text"].Value<string>();
-                var time = lyric["time"];
+                JToken time = lyric["time"];
                 if (time != null)
                 {
                     int min = time["minutes"].Value<int>(),
@@ -95,13 +95,13 @@ namespace AbataLibrary.Entities
             IBuffer buffMsg;
 
             DataContractSerializer sessionSerializer = new DataContractSerializer(typeof(LyricLineSet));
-            using (var stream = new MemoryStream())
+            using (MemoryStream stream = new MemoryStream())
             {
                 sessionSerializer.WriteObject(stream, this);
 
                 buffMsg = stream.ToArray().AsBuffer();
             }
-            var lyricsFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("lyrics");
+            StorageFolder lyricsFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("lyrics");
             StorageFile sessionFile = await lyricsFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteBufferAsync(sessionFile, buffMsg);
         }
@@ -111,12 +111,12 @@ namespace AbataLibrary.Entities
             try
             {
                 DataContractSerializer sessionSerializer = new DataContractSerializer(typeof(LyricLineSet));
-                var lyricsFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("lyrics");
-                var lyricFile = lyricsFolder.GetItemAsync(fileName);
+                StorageFolder lyricsFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("lyrics");
+                Windows.Foundation.IAsyncOperation<IStorageItem> lyricFile = lyricsFolder.GetItemAsync(fileName);
                 if (lyricFile != null)
-                    using (var sessionFileStream = await lyricsFolder.OpenStreamForReadAsync(fileName))
+                    using (Stream sessionFileStream = await lyricsFolder.OpenStreamForReadAsync(fileName))
                     {
-                        var obj = sessionSerializer.ReadObject(sessionFileStream);
+                        object obj = sessionSerializer.ReadObject(sessionFileStream);
                         if (obj != null)
                             return (LyricLineSet)obj;
                     }

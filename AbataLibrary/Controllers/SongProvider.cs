@@ -40,7 +40,7 @@ namespace AbataLibrary.Entities
 
             //StorageFolder bowieFolder = await KnownFolders.MusicLibrary;
 
-            var files = await KnownFolders.MusicLibrary.CreateFileQueryWithOptions(queryOption).GetFilesAsync();
+            IReadOnlyList<StorageFile> files = await KnownFolders.MusicLibrary.CreateFileQueryWithOptions(queryOption).GetFilesAsync();
 
             bool success = await _orig.AddSongSetAsync(files);
 

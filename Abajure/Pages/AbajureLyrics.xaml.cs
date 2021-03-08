@@ -32,13 +32,12 @@ namespace Abajure.Pages
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            var song = e.Parameter as Song;
             _provider = await PlayerProvider.GetPlayerProvider();
-            if (song != null)
+            if (e.Parameter is Song song)
             {
                 _song = song;
                 SetAlbumCover();
-                var lyrics = await TryGetLyrics();
+                LyricLineSet lyrics = await TryGetLyrics();
                 if (lyrics != null)
                 {
                     _lyrics = lyrics;
@@ -69,7 +68,7 @@ namespace Abajure.Pages
             {
                 if (thumb != null && thumb.Type == ThumbnailType.Image)
                 {
-                    var bitmapImage = new BitmapImage();
+                    BitmapImage bitmapImage = new BitmapImage();
                     bitmapImage.SetSource(thumb);
                     AlbumPlaceHolder.Source = bitmapImage;
                 }
@@ -80,12 +79,12 @@ namespace Abajure.Pages
         {
             if (_lyrics != null)
             {
-                var lyricLine = _lyrics[e.ElapsedTime];
+                LyricLine lyricLine = _lyrics[e.ElapsedTime];
                 int inx;
                 if (lyricLine != null)
                 {
                     inx = _lyrics.IndexOf(lyricLine);
-                    var item = lvLyrics.Items[inx];
+                    object item = lvLyrics.Items[inx];
 
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
@@ -123,7 +122,7 @@ namespace Abajure.Pages
         {
             if (_lyrics != null && _lyrics.Timed)
             {
-                var toggleButton = ((AppBarToggleButton)sender);
+                AppBarToggleButton toggleButton = ((AppBarToggleButton)sender);
                 if (toggleButton.IsChecked.Value)
                     _provider.MediaTimeChanged += _provider_MediaTimeChanged;
                 else

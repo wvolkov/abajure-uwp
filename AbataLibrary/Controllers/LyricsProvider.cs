@@ -28,7 +28,7 @@ namespace AbataLibrary.Controllers
         public static async Task<LyricLineSet> GetLyricsAsync(string track, string artist, string album)
         {
             string lyricFileName = GenerateHash(track, artist, album);
-            var lyrics = await LyricLineSet.Load(lyricFileName);
+            LyricLineSet lyrics = await LyricLineSet.Load(lyricFileName);
             if (lyrics != null)
                 return lyrics;
             else
@@ -43,7 +43,7 @@ namespace AbataLibrary.Controllers
         public static async Task<LyricLineSet> RequestLyricsAsync(string track, string artist, string album)
         {
             HttpClient client = new HttpClient();
-            var headers = client.DefaultRequestHeaders;
+            HttpRequestHeaderCollection headers = client.DefaultRequestHeaders;
             SetMusixMatchDefaultHeaders(headers);
             Uri requestUri = CreateMusixMatchUriRequest(track, artist, album);
 
@@ -126,7 +126,7 @@ namespace AbataLibrary.Controllers
                 {"app_id", "web-desktop-app-v1.0" },
                 {"usertoken", "210222ec1b35a92b7e1d31550927372d862aa1c1ed5aacf9315a24" }
             };
-            foreach (var d in queryParams)
+            foreach (KeyValuePair<string, string> d in queryParams)
                 query += $"&{d.Key}={d.Value}";
 
             return new Uri(url + "?" + query);

@@ -47,10 +47,10 @@ namespace Abajure
             prAudioDevices.IsActive = true;
             cbAudioDevices.IsEnabled = false;
             string audioSelector = MediaDevice.GetAudioRenderSelector();
-            var outputDevices = await DeviceInformation.FindAllAsync(audioSelector);
-            foreach (var device in outputDevices)
+            DeviceInformationCollection outputDevices = await DeviceInformation.FindAllAsync(audioSelector);
+            foreach (DeviceInformation device in outputDevices)
             {
-                var deviceItem = new ComboBoxItem();
+                ComboBoxItem deviceItem = new ComboBoxItem();
                 deviceItem.Content = device.Name;
                 deviceItem.Tag = device;
                 cbAudioDevices.Items.Add(deviceItem);
@@ -71,7 +71,7 @@ namespace Abajure
             if (cbAudioDevices.SelectedIndex != -1)
             {
                 DeviceInformation selectedAudioDevice = (DeviceInformation)((ComboBoxItem)cbAudioDevices.SelectedItem).Tag;
-                var settings = _playerProvider.Settings;
+                AbajureSettings settings = _playerProvider.Settings;
                 settings.AudioDeviceId = selectedAudioDevice.Id;
                 settings.Save();
                 _playerProvider.SetMediaDevice(selectedAudioDevice);
