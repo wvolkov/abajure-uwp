@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AbataLibrary.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Search;
 
-namespace AbataLibrary.Entities
+namespace AbataLibrary.Controllers
 {
     public class SongProvider
     {

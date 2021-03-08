@@ -87,7 +87,7 @@ namespace Abajure
                     // configuring the new page by passing required information as a navigation
                     // parameter
                     #if (DEBUG)
-                        rootFrame.Navigate(typeof(PlaylistPage), e.Arguments);
+                        rootFrame.Navigate(typeof(TestPage), e.Arguments);
                     #elif (RELEASE)
                         rootFrame.Navigate(typeof(PlaylistPage), e.Arguments);
                     #endif

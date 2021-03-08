@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AbataLibrary.Entities;
 using Microsoft.Data.Sqlite;
 using Windows.Storage;
 
-namespace AbataLibrary
+namespace AbataLibrary.Controllers
 {
     public class AbataProvider
     {
@@ -42,6 +43,48 @@ namespace AbataLibrary
         {
             using (SqliteConnection db = new SqliteConnection(String.Format("Filename={0}", AbataConfig.DB_PATH)))
                 CreateBaseTables(db);
+        }
+
+        public void InsertSongs(SongSet songs)
+        {
+            using (SqliteConnection db = new SqliteConnection(String.Format("Filename={0}", AbataConfig.DB_PATH)))
+            {
+                db.Open();
+                using (var transaction = db.BeginTransaction())
+                {
+                    var cmd = db.CreateCommand();
+                    cmd.CommandText =
+                        @"
+                            INSERT INTO songs(title, artist, album, date_modifed)
+                            VALUES ($title, $artist, $album, $date_modifed)
+                        ";
+                    SqliteParameter
+                        title = cmd.CreateParameter(),
+                        artist = cmd.CreateParameter(),
+                        album = cmd.CreateParameter(),
+                        dateModified = cmd.CreateParameter();
+                    title.ParameterName = "$title";
+                    artist.ParameterName = "$artist";
+                    album.ParameterName = "$album";
+                    dateModified.ParameterName = "$date_modifed";
+                    cmd.Parameters.Add(title);
+                    cmd.Parameters.Add(artist);
+                    cmd.Parameters.Add(album);
+                    cmd.Parameters.Add(dateModified);
+
+                    foreach (Song s in songs)
+                    {
+                        title.Value = s.Title;
+                        artist.Value = s.Artist;
+                        album.Value = s.Album;
+                        dateModified.Value = s.DateModified;
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+                db.Close();
+            }
         }
 
 

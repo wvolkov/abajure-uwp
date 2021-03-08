@@ -1,8 +1,11 @@
-﻿using System;
+﻿using AbataLibrary;
+using AbataLibrary.Controllers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -25,6 +28,17 @@ namespace Abajure
         public TestPage()
         {
             this.InitializeComponent();
+            TestFunction();
+        }
+
+        private async void TestFunction()
+        {
+            SongProvider sp = SongProvider.GetSongProvider();
+            sp.ScanLib();
+            while (!sp.IsScanComplete)
+                await Task.Delay(1000);
+            AbataProvider aba = AbataProvider.GetProvider();
+            aba.InsertSongs(sp.SongSet);
         }
     }
 }
