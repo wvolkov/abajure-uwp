@@ -28,17 +28,26 @@ namespace Abajure
         public TestPage()
         {
             this.InitializeComponent();
-            TestFunction();
         }
 
-        private async void TestFunction()
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            this.btnTest.IsEnabled = false;
             SongProvider sp = SongProvider.GetSongProvider();
             sp.ScanLib();
             while (!sp.IsScanComplete)
                 await Task.Delay(1000);
             AbataProvider aba = AbataProvider.GetProvider();
+            var dbHashes = aba.GetSongHashes();
             aba.InsertSongs(sp.SongSet);
+            this.btnTest.IsEnabled = true;
+        }
+
+        private void BtnLoadSongs_Click(object sender, RoutedEventArgs e)
+        {
+            AbataProvider aba = AbataProvider.GetProvider();
+            var songs = aba.GetSongs();
         }
     }
 }

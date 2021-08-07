@@ -67,7 +67,7 @@ namespace AbataLibrary.Controllers
             if (_provider == null)
             {
                 _provider = new SongProvider();
-                _provider.ScanLib();
+                //_provider.ScanLib();
             }
             return _provider;
         }

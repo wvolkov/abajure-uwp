@@ -42,7 +42,34 @@ namespace AbataLibrary.Controllers
         public void CreateDataBase()
         {
             using (SqliteConnection db = new SqliteConnection(String.Format("Filename={0}", AbataConfig.DB_PATH)))
-                CreateBaseTables(db);
+            {
+                string sqlCmd = "";
+                db.Open();
+
+                SqliteCommand command = db.CreateCommand();
+                //Songs Table
+                sqlCmd = @"CREATE TABLE `songs` (
+	                                `id`	        INTEGER PRIMARY KEY AUTOINCREMENT,
+	                                `song_path`	    TEXT,
+	                                `song_hash`	    TEXT,
+	                                `title`	        TEXT,
+	                                `artist`	    TEXT,
+	                                `album`	        TEXT,
+	                                `album_artist`	TEXT,
+	                                `subtitle`	    TEXT,
+                                    `track_number`  INTEGER,
+                                    `year`          INTEGER,
+	                                `bitrate`	    INTEGER,
+	                                `date_modified`	TEXT,
+	                                `duration`	    TEXT
+                                );";
+
+                command.CommandText = sqlCmd;
+
+                command.ExecuteNonQuery();
+
+                db.Close();
+            }
         }
 
         public void InsertSongs(SongSet songs)
@@ -52,32 +79,19 @@ namespace AbataLibrary.Controllers
                 db.Open();
                 using (var transaction = db.BeginTransaction())
                 {
+                    Dictionary<string, SqliteParameter> paramMap = songs.MapToParameter();
                     var cmd = db.CreateCommand();
                     cmd.CommandText =
-                        @"
-                            INSERT INTO songs(title, artist, album, date_modifed)
-                            VALUES ($title, $artist, $album, $date_modifed)
-                        ";
-                    SqliteParameter
-                        title = cmd.CreateParameter(),
-                        artist = cmd.CreateParameter(),
-                        album = cmd.CreateParameter(),
-                        dateModified = cmd.CreateParameter();
-                    title.ParameterName = "$title";
-                    artist.ParameterName = "$artist";
-                    album.ParameterName = "$album";
-                    dateModified.ParameterName = "$date_modifed";
-                    cmd.Parameters.Add(title);
-                    cmd.Parameters.Add(artist);
-                    cmd.Parameters.Add(album);
-                    cmd.Parameters.Add(dateModified);
+                        $"INSERT INTO songs({String.Join(", ", paramMap.Keys)})"
+                        + "\n" + $"VALUES ({String.Join(", ", paramMap.Keys.Select(i => "$" + i))})";
+                    cmd.Parameters.AddRange(paramMap.Values);
 
                     foreach (Song s in songs)
                     {
-                        title.Value = s.Title;
-                        artist.Value = s.Artist;
-                        album.Value = s.Album;
-                        dateModified.Value = s.DateModified;
+                        foreach (var item in s.MapValuesToDb())
+                        {
+                            paramMap[item.Key].Value = item.Value;
+                        }
                         cmd.ExecuteNonQuery();
                     }
 
@@ -87,34 +101,56 @@ namespace AbataLibrary.Controllers
             }
         }
 
-
-
-        private void CreateBaseTables(SqliteConnection db)
+        public List<string> GetSongHashes()
         {
-            string sqlCmd = "";
-            db.Open();
+            List<string> hashes = null;
+            using (SqliteConnection db = new SqliteConnection(String.Format("Filename={0}", AbataConfig.DB_PATH)))
+            {
+                db.Open();
+                SqliteCommand selectHash = new SqliteCommand(
+                    "SELECT distinct song_hash FROM songs", db);
+                SqliteDataReader query = selectHash.ExecuteReader();
+                if (query.Read())
+                {
+                    hashes = new List<string>();
+                    do
+                    {
+                        hashes.Add(query.GetString(0));
+                    }
+                    while (query.Read());
+                }
 
-            SqliteCommand command = db.CreateCommand();
-            //Songs Table
-            sqlCmd = @"CREATE TABLE `songs` (
-	                                `id`	INTEGER PRIMARY KEY AUTOINCREMENT,
-	                                `song_path`	TEXT,
-	                                `song_hash`	BLOB,
-	                                `title`	TEXT,
-	                                `artist`	TEXT,
-	                                `album`	TEXT,
-	                                `album_artist`	TEXT,
-	                                `subtitle`	TEXT,
-	                                `bitrate`	INTEGER,
-	                                `date_modifed`	REAL,
-	                                `duration`	REAL
-                                );";
+                db.Close();
+            }
 
-            command.CommandText = sqlCmd;
+            return hashes;
+        }
 
-            command.ExecuteNonQuery();
+        public SongSet GetSongs()
+        {
+            SongSet res = null;
+            using (SqliteConnection db = new SqliteConnection(String.Format("Filename={0}", AbataConfig.DB_PATH)))
+            {
+                db.Open();
+                string stmt = @"SELECT
+                                    s.*
+                                FROM
+                                    songs s";
+                SqliteCommand cmd = new SqliteCommand(stmt, db);
+                SqliteDataReader query = cmd.ExecuteReader();
+                if (query.Read())
+                {
+                    res = new SongSet();
+                    do
+                    {
+                        res.Add(new Song(query));
+                    }
+                    while (query.Read());
+                }
+                db.Close();
+            }
 
-            db.Close();
+            return res;
         }
     }
 }

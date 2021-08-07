@@ -9,22 +9,26 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Button HorizontalAlignment="Center" Height="Auto" Width="Auto">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Button x:Name="btnTest" HorizontalAlignment="Center" Height="Auto" Width="Auto" Click="Button_Click">
             <Button.Content>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE945;" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF13D;" FontSize="8" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Margin="5,0,0,0"/>
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF149;" FontSize="10" Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+                    <TextBlock Width="50" Text="Save Songs" Grid.Column="0" TextWrapping="Wrap"/>
+                    <FontIcon Grid.Column="1" FontFamily="Segoe MDL2 Assets" Glyph="&#xE945;" Grid.ColumnSpan="2"/>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF13D;" FontSize="8" Grid.Column="3" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5,0,0,0"/>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF149;" FontSize="10" Grid.Column="3"  VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
                 </Grid>
             </Button.Content>
         </Button>
+        <Button x:Name="btnLoadSongs" Content="Load Songs" HorizontalAlignment="Center" Grid.Column="1" Click="BtnLoadSongs_Click"/>
     </Grid>
 </Page>

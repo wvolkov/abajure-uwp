@@ -116,8 +116,13 @@
     <Compile Include="Entities\MusicFile.cs" />
     <Compile Include="Entities\MusicFileExtension.cs" />
     <Compile Include="Entities\Song.cs" />
+    <Compile Include="Entities\Sqlite\SqliteTable.cs" />
+    <Compile Include="Entities\Sqlite\SqliteTableField.cs" />
+    <Compile Include="Entities\Sqlite\ISqliteValuesMapper.cs" />
+    <Compile Include="Entities\Sqlite\ISqliteParameterMapper.cs" />
     <Compile Include="Entities\UI\ABEnum.cs" />
     <Compile Include="Entities\UI\ABStatus.cs" />
+    <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\AbataLibrary.rd.xml" />
   </ItemGroup>
