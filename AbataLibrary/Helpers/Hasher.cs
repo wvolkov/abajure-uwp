@@ -19,5 +19,15 @@ namespace AbataLibrary.Helpers
             IBuffer buffHash = hashProvider.HashData(filebuffer);
             return CryptographicBuffer.EncodeToHexString(buffHash);
         }
+        
+        public struct HashResult { public Task<string> task; public StorageFile file; };
+
+        public static IEnumerable<HashResult> GetHash(IEnumerable<StorageFile> files, string algorithm = "MD5")
+        {
+            foreach(StorageFile file in files)
+            {
+                yield return new HashResult() { task = GetHash(file), file = file };
+            }
+        }
     }
 }

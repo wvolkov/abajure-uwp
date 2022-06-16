@@ -120,20 +120,23 @@ namespace AbataLibrary.Controllers
             if (inx >= 0)
             {
                 MediaPlaybackList.MoveTo((uint)inx);
+                CurrentSong = song;
                 //UpdateDisplayMeta(_currentSongsSet[inx]);
             }
         }
 
-        public void SetMediaPlaybackList(SongSet songs)
+        public async Task<bool> SetMediaPlaybackList(SongSet songs)
         {
             _currentSongsSet = songs;
 
             if (MediaPlaybackList.Items.Count > 0)
                 MediaPlaybackList.Items.Clear();
+            MediaPlayer.Source = MediaPlaybackList;
             foreach (Song song in songs)
-                MediaPlaybackList.Items.Add(song.MediaPlaybackItem);
+                MediaPlaybackList.Items.Add(await song.GetMediaPlaybackItemAsync());
             MediaPlayer.Pause();
             MediaPlayer.Source = MediaPlaybackList;
+            return true;
         }
 
         public async void SetMediaSourceAsync(Song s)
@@ -203,8 +206,8 @@ namespace AbataLibrary.Controllers
         {
             StorageItemThumbnail thumb = await song.GetThumbNail();
             {
-
-                MediaItemDisplayProperties props = song.MediaPlaybackItem.GetDisplayProperties();
+                var mediaPlayBackItem = await song.GetMediaPlaybackItemAsync();
+                MediaItemDisplayProperties props = mediaPlayBackItem.GetDisplayProperties();
                 props.Type = MediaPlaybackType.Music;
                 props.MusicProperties.Artist = song.Artist;
                 props.MusicProperties.Title = song.Title;
@@ -224,7 +227,8 @@ namespace AbataLibrary.Controllers
                     props.Thumbnail = thumbStream;
                     updater.Thumbnail = thumbStream;
                 }
-                song.MediaPlaybackItem.ApplyDisplayProperties(props);
+                var mpbi = await song.GetMediaPlaybackItemAsync();
+                mediaPlayBackItem.ApplyDisplayProperties(props);
                 updater.Update();
             }
         }

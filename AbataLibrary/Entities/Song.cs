@@ -42,8 +42,9 @@ namespace AbataLibrary.Entities
         public uint TrackNumber { get; private set; }
         [SqliteTableField("year")]
         public uint Year { get; private set; }
-        public MediaPlaybackItem MediaPlaybackItem { get; private set; }
 
+        private MediaPlaybackItem _mediaPlayBackItem;
+        public StorageFile StorageFile { get; private set; }
 
         public string DurationString
         {
@@ -59,7 +60,6 @@ namespace AbataLibrary.Entities
             MusicProperties mp = await songFile.Properties.GetMusicPropertiesAsync();
             BasicProperties bp = await songFile.GetBasicPropertiesAsync();
             string fileHash = await Hasher.GetHash(songFile);
-            MediaPlaybackItem pbi = new MediaPlaybackItem(MediaSource.CreateFromStorageFile(songFile));
 
             Song song = new Song()
             {
@@ -74,8 +74,8 @@ namespace AbataLibrary.Entities
                 Subtitle = mp.Subtitle,
                 TrackNumber = mp.TrackNumber,
                 Year = mp.Year,
-                MediaPlaybackItem = pbi,
-                Hash = fileHash
+                Hash = fileHash,
+                StorageFile = songFile
             };
 
             return song;
@@ -113,15 +113,29 @@ namespace AbataLibrary.Entities
             }
         }
 
+        public async Task<MediaPlaybackItem> GetMediaPlaybackItemAsync()
+        {
+            if (_mediaPlayBackItem == null)
+            {
+                var file = await this.AsStorageFileAsync();
+                _mediaPlayBackItem = new MediaPlaybackItem(MediaSource.CreateFromStorageFile(file));
+            }
+            return _mediaPlayBackItem;
+        }
+
 
         public async Task<StorageFile> AsStorageFileAsync()
         {
-            return await StorageFile.GetFileFromPathAsync(SongPath);
+            if(StorageFile == null)
+            {
+                StorageFile = await StorageFile.GetFileFromPathAsync(SongPath);
+            }
+            return StorageFile;
         }
 
         public async Task<StorageItemThumbnail> GetThumbNail()
         {
-            StorageFile file = await this.AsStorageFileAsync();
+            var file = await this.AsStorageFileAsync();
             StorageItemThumbnail thumb = await file.GetThumbnailAsync(ThumbnailMode.MusicView, 500);
             return thumb;
         }
@@ -156,12 +170,20 @@ namespace AbataLibrary.Entities
                 songSet.Add(await Song.CreateSongAsync(file));
         }
 
-        public async Task<bool> AddSongSetAsync(IReadOnlyList<StorageFile> files)
+        public async Task<SongSet> AddSongSetAsync(IEnumerable<StorageFile> files)
         {
-            foreach (StorageFile file in files)
-                this.Add(await Song.CreateSongAsync(file));
-
-            return true;
+            SongSet newSongs = null;
+            if (files != null)
+            {
+                newSongs = new SongSet();
+                foreach (StorageFile file in files)
+                {
+                    var song = await Song.CreateSongAsync(file);
+                    this.Add(song);
+                    newSongs.Add(song);
+                }
+            }
+            return newSongs;
         }
 
         public Dictionary<string, SqliteParameter> MapToParameter()

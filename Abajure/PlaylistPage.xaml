@@ -56,6 +56,11 @@
                         <FontIcon Glyph="&#xE713;" FontFamily="Segoe MDL2 Assets"/>
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <AppBarButton x:Name="abBtnScan" Label="Scan" Click="AbBtnScan_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE895;" FontFamily="Segoe MDL2 Assets"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
@@ -73,14 +78,14 @@
             </Grid.ColumnDefinitions>
             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE721;" Grid.Column="0" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             <TextBox Margin="5,5,5,5" x:Name="tbHeader" TextChanged="TextBox_TextChanged" Height="45" Width="Auto" FontSize="25" TextAlignment="Left" Grid.Column="1"/>
-            <ProgressRing x:Name="_progressRing" Grid.Column="2" HorizontalAlignment="Center" IsActive="True" FontSize="20"/>
+            <ProgressRing x:Name="_progressRing" Grid.Column="2" HorizontalAlignment="Center" IsActive="False" FontSize="20"/>
         </Grid>
         <ListView x:Name="lvMusicFiles"
                   Margin="10,10.333,10,4.667"
                   ItemsSource="{x:Bind _songProvider.SongSet}"
                   ItemClick="LvMusicFiles_ItemClick"
-                  Grid.Row="1"
-                  IsItemClickEnabled="False">
+                  IsItemClickEnabled="False"
+                  Grid.Row="1">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
